@@ -1,0 +1,62 @@
+name: Release
+
+# Publishes the SDK's .NET packages (StokerHQ.Plugins.Registry, StokerHQ.Registry) to nuget.org with Trusted Publishing:
+# the job's OIDC token is exchanged for an API key valid for one hour, so no long-lived key is stored anywhere. It runs
+# in the `nuget` environment, which a maintainer approves, and only for a version whose SDK sources are exactly those of
+# its `v<version>` tag. The native zip is attached to the GitHub release by the maintainer who makes it.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: The release tag whose version is published (v1.0.0). The run's own commit must carry the same dotnet/ and native/ trees.
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  nuget:
+    runs-on: ubuntu-latest
+    environment: nuget
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: The version is the tag's, and the sources are the tag's
+        shell: bash
+        env:
+          TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          version=$(jq -r .version native/sdk.json)
+          if [ "v$version" != "$TAG" ]; then echo "native/sdk.json says $version, the tag is $TAG"; exit 1; fi
+          git rev-parse --verify --quiet "refs/tags/$TAG" > /dev/null || { echo "no tag $TAG"; exit 1; }
+          if ! git diff --quiet "$TAG" HEAD -- dotnet native; then
+            echo "dotnet/ or native/ differ from $TAG:"; git diff --stat "$TAG" HEAD -- dotnet native; exit 1
+          fi
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet build dotnet/StokerPluginSdk.slnx -c Release
+      - run: dotnet test --project dotnet/tests/Stoker.Plugins.Registry.Tests/Stoker.Plugins.Registry.Tests.csproj -c Release --no-build
+      - run: dotnet pack dotnet/StokerPluginSdk.slnx -c Release --no-build -o dist/nuget
+
+      - uses: NuGet/login@v1
+        id: login
+        with:
+          user: TheBinaryLoop
+
+      - name: Push to nuget.org
+        run: dotnet nuget push "dist/nuget/*.nupkg" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nuget
+          path: dist/nuget/*.nupkg
