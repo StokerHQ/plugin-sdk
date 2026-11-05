@@ -1,0 +1,97 @@
+# Builds every target of a hook plugin repository against the SDK its stoker-plugin.yaml pins. Call it from the
+# plugin's repository at a tag of this one:
+#
+#   jobs:
+#     build:
+#       uses: StokerHQ/plugin-sdk/.github/workflows/build-hook-plugin.yml@v1.0.0
+#
+# The SDK is the pinned release zip, checked by its SHA-256 (stoker-registry sdk); nothing of it lives in the plugin's
+# repository. Built files are an artifact named `plugin`, one file per target: <name>-<os>-<architecture>.<dll|so>,
+# the names a release attaches them under. Signing is the publisher's, on the files the release carries.
+name: Build a hook plugin
+
+on:
+  workflow_call:
+    inputs:
+      project:
+        description: The plugin project file.
+        type: string
+        default: stoker-plugin.yaml
+      tool-version:
+        description: The StokerHQ.Registry tool version to fetch the SDK with.
+        type: string
+        default: "1.*"
+
+jobs:
+  targets:
+    runs-on: ubuntu-latest
+    outputs:
+      windows: ${{ steps.read.outputs.windows }}
+      linux: ${{ steps.read.outputs.linux }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: read
+        name: Read the targets
+        shell: python
+        run: |
+          import json, os, yaml
+          project = yaml.safe_load(open("${{ inputs.project }}", encoding="utf-8"))
+          targets = project.get("targets") or []
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              for os_name in ("windows", "linux"):
+                  chosen = [t for t in targets if t.get("os") == os_name]
+                  out.write(f"{os_name}={json.dumps(chosen)}\n")
+
+  windows:
+    needs: targets
+    if: needs.targets.outputs.windows != '[]'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet tool install -g StokerHQ.Registry --version "${{ inputs.tool-version }}"
+      - name: Build
+        shell: pwsh
+        env:
+          TARGETS: ${{ needs.targets.outputs.windows }}
+        run: |
+          $sdk = stoker-registry sdk --project "${{ inputs.project }}"
+          if ($LASTEXITCODE -ne 0) { throw 'The SDK could not be fetched.' }
+          foreach ($t in $env:TARGETS | ConvertFrom-Json) {
+            $platform = if ($t.architecture -eq 'x86') { 'Win32' } else { 'x64' }
+            $built = & "$sdk/build/Build-HookPlugin.ps1" -Source $t.source -Resources $t.resources -Name $t.name -Platform $platform -Out "build/$($t.architecture)"
+            New-Item -ItemType Directory -Force out | Out-Null
+            Copy-Item $built "out/$($t.name)-windows-$($t.architecture).dll"
+          }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plugin-windows
+          path: out/*
+
+  linux:
+    needs: targets
+    if: needs.targets.outputs.linux != '[]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet tool install -g StokerHQ.Registry --version "${{ inputs.tool-version }}"
+      - name: Build
+        env:
+          TARGETS: ${{ needs.targets.outputs.linux }}
+        run: |
+          sdk="$(stoker-registry sdk --project '${{ inputs.project }}')"
+          mkdir -p out
+          echo "$TARGETS" | python3 -c 'import json,sys; [print(t["source"], t["name"], t["architecture"]) for t in json.load(sys.stdin)]' |
+          while read -r source name architecture; do
+            [ "$architecture" = x64 ] || { echo "only x64 Linux targets build on this runner: $name $architecture" >&2; exit 1; }
+            g++ -std=c++20 -shared -fPIC -fvisibility=hidden -O2 -I"$sdk/include" -DSTOKER_HOOK_PLUGIN_BUILD "$source" -o "out/$name-linux-$architecture.so"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plugin-linux
+          path: out/*

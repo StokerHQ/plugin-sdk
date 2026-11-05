@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  dotnet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet build dotnet/StokerPluginSdk.slnx -c Release
+      - run: dotnet test --project dotnet/tests/Stoker.Plugins.Registry.Tests/Stoker.Plugins.Registry.Tests.csproj -c Release --no-build
+      - run: dotnet pack dotnet/StokerPluginSdk.slnx -c Release --no-build -o dist/nuget
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nuget
+          path: dist/nuget/*.nupkg
+
+  native-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: The example, with the cl/rc helper, both architectures
+        shell: pwsh
+        run: |
+          ./native/build/Build-HookPlugin.ps1 -Source native/examples/filename_redirect.cpp -Name filename_redirect -Platform x64 -Out build/x64
+          ./native/build/Build-HookPlugin.ps1 -Source native/examples/filename_redirect.cpp -Name filename_redirect -Platform Win32 -Out build/x86
+      - name: The release zip
+        shell: pwsh
+        run: ./scripts/Build-Release.ps1 -SkipPack
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdk
+          path: dist/stoker-plugin-sdk-*
+
+  native-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: The headers under g++, as a Linux plugin builds against them
+        run: |
+          cat > /tmp/probe.cpp <<'EOF'
+          #include "stoker/plugin_support.h"
+          STOKER_PLUGIN_MANIFEST(R"json({"manifestVersion":1,"id":"org.example.probe","name":"Probe","type":"hook","version":"1.0.0","abi":1})json");
+          STOKER_HOOK_PLUGIN_ENTRY int STOKER_HOOK_CALL stoker_hook_plugin_init(const stoker_hook_host_v1* host) { return stoker::plugin::Accept(host) ? STOKER_HOOK_OK : 1; }
+          EOF
+          g++ -std=c++20 -shared -fPIC -fvisibility=hidden -Wall -Wextra -O2 -Inative/include /tmp/probe.cpp -o /tmp/probe.so
+          readelf -S /tmp/probe.so | grep -q '\.stkmeta'

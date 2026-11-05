@@ -1,0 +1,13 @@
+bin/
+obj/
+dist/
+native/examples/build/
+*.res
+*.obj
+*.exp
+*.lib
+*.pdb
+*.ilk
+__pycache__/
+*.user
+.vs/

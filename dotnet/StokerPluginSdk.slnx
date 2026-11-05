@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Stoker.Plugins.Registry/Stoker.Plugins.Registry.csproj" />
+  <Project Path="Stoker.Registry.Tool/Stoker.Registry.Tool.csproj" />
+  <Folder Name="/tests/">
+    <Project Path="tests/Stoker.Plugins.Registry.Tests/Stoker.Plugins.Registry.Tests.csproj" />
+  </Folder>
+</Solution>

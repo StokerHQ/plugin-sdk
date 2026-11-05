@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=https://schemas.stokerhq.app/plugins/v1/plugin-project.schema.json
+# What a hook plugin's repository says about itself: which plugin it builds, from which sources, against which SDK.
+schemaVersion: "1.0"
+key: org.example.widescreen-fix
+kind: hook
+sdk:
+  version: "1.0.0"
+  sha256: "0000000000000000000000000000000000000000000000000000000000000000"
+targets:
+  - { os: windows, architecture: x64, source: hook-plugin/widescreen_fix.cpp, name: widescreen_fix }
+  - { os: windows, architecture: x86, source: hook-plugin/widescreen_fix.cpp, name: widescreen_fix }
+  - { os: linux, architecture: x64, source: hook-plugin/widescreen_fix.cpp, name: widescreen_fix }

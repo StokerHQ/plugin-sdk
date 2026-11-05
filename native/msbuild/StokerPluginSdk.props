@@ -1,0 +1,17 @@
+<Project>
+  <!-- The Stoker plugin SDK for an MSBuild C++ project: import this file after Microsoft.Cpp.props.
+       It adds the SDK's include path and the settings a hook plugin must have (one self-contained DLL with the
+       static C runtime). The fetch scripts print the SDK's folder; this file finds the headers beside itself. -->
+  <PropertyGroup>
+    <StokerPluginSdkRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))</StokerPluginSdkRoot>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(StokerPluginSdkRoot)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>STOKER_HOOK_PLUGIN_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+</Project>

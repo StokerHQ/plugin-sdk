@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Stoker.Plugins.Registry\Stoker.Plugins.Registry.csproj" />
+    <!-- The YAML reader and the commands live in the tool. -->
+    <ProjectReference Include="..\..\Stoker.Registry.Tool\Stoker.Registry.Tool.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- StokerHQ/schemas' plugins/examples: a registry with real keys and real signatures, which this code has to verify. -->
+    <None Include="Fixtures\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

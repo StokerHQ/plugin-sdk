@@ -1,0 +1,42 @@
+# Checks a plugin registry repository the way an instance will: the format (StokerHQ/schemas' validator), then every
+# version's signature, namespace, policy and tag, and every asset downloaded and compared with its entry. Call it from
+# the registry's repository at a tag of this one:
+#
+#   jobs:
+#     check:
+#       uses: StokerHQ/plugin-sdk/.github/workflows/check-release.yml@v1.0.0
+name: Check a registry
+
+on:
+  workflow_call:
+    inputs:
+      root:
+        description: The registry root (where registry.yaml is).
+        type: string
+        default: .
+      tool-version:
+        description: The StokerHQ.Registry tool version to check with.
+        type: string
+        default: "1.*"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: StokerHQ/schemas
+          path: .stokerhq-schemas
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install "jsonschema[format-nongpl]" pyyaml
+      - name: The format
+        run: python -I .stokerhq-schemas/validate.py --plugins "${{ inputs.root }}" .stokerhq-schemas/metadata/examples
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet tool install -g StokerHQ.Registry --version "${{ inputs.tool-version }}"
+      - name: Signatures, namespaces, policy and every asset
+        run: stoker-registry check "${{ inputs.root }}" --download

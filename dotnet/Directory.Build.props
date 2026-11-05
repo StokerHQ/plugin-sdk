@@ -1,0 +1,28 @@
+<Project>
+
+  <!-- What every .NET project of the SDK shares. The version is the SDK's own, read from native/sdk.json, so the
+       packages and the native release zip of one SDK release always carry the same number. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <StokerSdkJson>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)../native/sdk.json'))</StokerSdkJson>
+    <Version>$([System.Text.RegularExpressions.Regex]::Match('$(StokerSdkJson)', '"version"\s*:\s*"([^"]+)"').Groups[1].Value)</Version>
+
+    <Authors>StokerHQ</Authors>
+    <Company>StokerHQ</Company>
+    <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/StokerHQ/plugin-sdk</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/StokerHQ/plugin-sdk</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsPackable)' != 'false'">
+    <None Include="$(MSBuildThisFileDirectory)../README.md" Pack="true" PackagePath="/" Visible="false" />
+  </ItemGroup>
+
+</Project>

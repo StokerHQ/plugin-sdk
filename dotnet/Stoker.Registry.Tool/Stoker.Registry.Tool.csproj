@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- stoker-registry: what a plugin publisher and a registry's owner run - a key, a signed version entry, checking a
+       registry, compiling its index and signing it. Installed as a .NET tool:
+       dotnet tool install -g StokerHQ.Registry -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Stoker.Registry</RootNamespace>
+    <AssemblyName>stoker-registry</AssemblyName>
+    <PackageId>StokerHQ.Registry</PackageId>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>stoker-registry</ToolCommandName>
+    <Description>stoker-registry: keys, signed plugin version entries, and checking, compiling and signing a Stoker plugin registry.</Description>
+    <PackageTags>stoker;plugins;registry;tool</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="YamlDotNet" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Stoker.Plugins.Registry\Stoker.Plugins.Registry.csproj" />
+  </ItemGroup>
+
+</Project>

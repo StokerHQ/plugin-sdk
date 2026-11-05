@@ -1,0 +1,17 @@
+# find_package's version check: a request for the same major and at most this minor/patch is satisfied.
+file(READ "${CMAKE_CURRENT_LIST_DIR}/../sdk.json" _stoker_sdk_json)
+string(JSON PACKAGE_VERSION GET "${_stoker_sdk_json}" version)
+
+if(PACKAGE_FIND_VERSION_MAJOR STREQUAL "" OR PACKAGE_VERSION VERSION_LESS PACKAGE_FIND_VERSION)
+  set(PACKAGE_VERSION_COMPATIBLE FALSE)
+else()
+  string(REGEX MATCH "^[0-9]+" _stoker_sdk_major "${PACKAGE_VERSION}")
+  if(_stoker_sdk_major STREQUAL PACKAGE_FIND_VERSION_MAJOR)
+    set(PACKAGE_VERSION_COMPATIBLE TRUE)
+    if(PACKAGE_VERSION VERSION_EQUAL PACKAGE_FIND_VERSION)
+      set(PACKAGE_VERSION_EXACT TRUE)
+    endif()
+  else()
+    set(PACKAGE_VERSION_COMPATIBLE FALSE)
+  endif()
+endif()
