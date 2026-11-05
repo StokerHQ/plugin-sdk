@@ -1,7 +1,7 @@
 <Solution>
-  <Project Path="Stoker.Plugins.Registry/Stoker.Plugins.Registry.csproj" />
-  <Project Path="Stoker.Registry.Tool/Stoker.Registry.Tool.csproj" />
+  <Project Path="StokerHQ.PluginRegistry/StokerHQ.PluginRegistry.csproj" />
+  <Project Path="StokerHQ.PluginRegistry.Tool/StokerHQ.PluginRegistry.Tool.csproj" />
   <Folder Name="/tests/">
-    <Project Path="tests/Stoker.Plugins.Registry.Tests/Stoker.Plugins.Registry.Tests.csproj" />
+    <Project Path="tests/StokerHQ.PluginRegistry.Tests/StokerHQ.PluginRegistry.Tests.csproj" />
   </Folder>
 </Solution>

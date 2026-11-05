@@ -4,9 +4,9 @@
        documents, the checks an instance makes, the compiled index and its timestamp, and the manifest a hook plugin
        carries in its .stkmeta section. No YAML: a caller reads registry.yaml and hands the documents over as JSON. -->
   <PropertyGroup>
-    <RootNamespace>Stoker.Plugins.Registry</RootNamespace>
-    <AssemblyName>Stoker.Plugins.Registry</AssemblyName>
-    <PackageId>StokerHQ.Plugins.Registry</PackageId>
+    <RootNamespace>StokerHQ.PluginRegistry</RootNamespace>
+    <AssemblyName>StokerHQ.PluginRegistry</AssemblyName>
+    <PackageId>StokerHQ.PluginRegistry</PackageId>
     <Description>Stoker plugin registries: publisher and registry signatures, version statements, registry checks, the compiled index and its signed timestamp, and the manifest reader for hook plugins.</Description>
     <PackageTags>stoker;plugins;registry</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

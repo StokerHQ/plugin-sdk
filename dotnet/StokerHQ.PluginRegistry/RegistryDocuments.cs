@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
 
-namespace Stoker.Plugins.Registry;
+namespace StokerHQ.PluginRegistry;
 
 /// <summary>
 /// A plugin registry's tree, read (plugins/v1): <c>registry.yaml</c>, and per plugin its <c>plugin.yaml</c> and every

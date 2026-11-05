@@ -2,12 +2,12 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Nodes;
-using Stoker.Plugins.Registry;
-using Stoker.Registry;
+using StokerHQ.PluginRegistry;
+using StokerHQ.PluginRegistry.Tool;
 
 return await Cli.RunAsync(args);
 
-namespace Stoker.Registry
+namespace StokerHQ.PluginRegistry.Tool
 {
     /// <summary>
     /// <c>stoker-registry</c>: keys, signed version entries, checking a registry, and compiling and signing its index

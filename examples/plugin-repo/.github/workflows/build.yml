@@ -9,4 +9,4 @@ on:
 
 jobs:
   build:
-    uses: StokerHQ/plugin-sdk/.github/workflows/build-hook-plugin.yml@v1.0.0
+    uses: StokerHQ/plugin-sdk/.github/workflows/build-hook-plugin.yml@v1.0.1

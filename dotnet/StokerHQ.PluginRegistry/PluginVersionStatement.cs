@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Stoker.Plugins.Registry;
+namespace StokerHQ.PluginRegistry;
 
 /// <summary>One file of a plugin version as its signed statement names it.</summary>
 /// <param name="Os">The <c>os</c> of the version's file entry (<c>windows</c>, <c>linux</c>, …).</param>

@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 
-namespace Stoker.Plugins.Registry;
+namespace StokerHQ.PluginRegistry;
 
 /// <summary>
 /// An ECDSA P-256 public key a plugin registry names: its own, which signs the compiled index's <c>timestamp.json</c>,

@@ -1,6 +1,6 @@
 name: Release
 
-# Publishes the SDK's .NET packages (StokerHQ.Plugins.Registry, StokerHQ.Registry) to nuget.org with Trusted Publishing:
+# Publishes the SDK's .NET packages (StokerHQ.PluginRegistry, StokerHQ.PluginRegistry.Tool) to nuget.org with Trusted Publishing:
 # the job's OIDC token is exchanged for an API key valid for one hour, so no long-lived key is stored anywhere. It runs
 # in the `nuget` environment, which a maintainer approves, and only for a version whose SDK sources are exactly those of
 # its `v<version>` tag. The native zip is attached to the GitHub release by the maintainer who makes it.
@@ -45,7 +45,7 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - run: dotnet build dotnet/StokerPluginSdk.slnx -c Release
-      - run: dotnet test --project dotnet/tests/Stoker.Plugins.Registry.Tests/Stoker.Plugins.Registry.Tests.csproj -c Release --no-build
+      - run: dotnet test --project dotnet/tests/StokerHQ.PluginRegistry.Tests/StokerHQ.PluginRegistry.Tests.csproj -c Release --no-build
       - run: dotnet pack dotnet/StokerPluginSdk.slnx -c Release --no-build -o dist/nuget
 
       - uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0

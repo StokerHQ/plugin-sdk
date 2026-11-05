@@ -1,8 +1,9 @@
 using System.Security.Cryptography;
-using Stoker.Plugins.Registry;
+using StokerHQ.PluginRegistry;
+using StokerHQ.PluginRegistry.Tool;
 using Xunit;
 
-namespace Stoker.Registry.Tests;
+namespace StokerHQ.PluginRegistry.Tests;
 
 /// <summary>
 /// <c>stoker-registry</c> as a publisher and a registry's owner run it: a signed version entry from release files, a

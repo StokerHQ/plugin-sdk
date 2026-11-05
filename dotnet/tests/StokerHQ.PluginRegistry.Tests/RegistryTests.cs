@@ -1,11 +1,11 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Nodes;
-using Stoker.Plugins.Registry;
-using Stoker.Registry;
+using StokerHQ.PluginRegistry;
+using StokerHQ.PluginRegistry.Tool;
 using Xunit;
 
-namespace Stoker.Registry.Tests;
+namespace StokerHQ.PluginRegistry.Tests;
 
 /// <summary>
 /// Plugin registries (plugin-registry.md §5, §7): the signed version statement, signatures made elsewhere verifying here,

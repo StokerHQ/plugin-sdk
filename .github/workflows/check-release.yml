@@ -4,7 +4,7 @@
 #
 #   jobs:
 #     check:
-#       uses: StokerHQ/plugin-sdk/.github/workflows/check-release.yml@v1.0.0
+#       uses: StokerHQ/plugin-sdk/.github/workflows/check-release.yml@v1.0.1
 name: Check a registry
 
 on:
@@ -15,7 +15,7 @@ on:
         type: string
         default: .
       tool-version:
-        description: The StokerHQ.Registry tool version to check with.
+        description: The StokerHQ.PluginRegistry.Tool tool version to check with.
         type: string
         default: "1.*"
 
@@ -37,6 +37,6 @@ jobs:
       - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: 10.0.x
-      - run: dotnet tool install -g StokerHQ.Registry --version "${{ inputs.tool-version }}"
+      - run: dotnet tool install -g StokerHQ.PluginRegistry.Tool --version "${{ inputs.tool-version }}"
       - name: Signatures, namespaces, policy and every asset
         run: stoker-registry check "${{ inputs.root }}" --download

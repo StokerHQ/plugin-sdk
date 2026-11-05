@@ -6,8 +6,8 @@ Builds one SDK release into dist/: the native zip with its SHA-256, and the .NET
 dist/stoker-plugin-sdk-<version>.zip holds native/ (headers, CMake and MSBuild files, the cl/rc helper, the example
 and sdk.json) with LICENSE and README.md beside it. The zip is reproducible - entries in ordinal order, fixed
 timestamps, no build output - so the same sources always give the same SHA-256, which is what plugin projects pin.
-dist/stoker-plugin-sdk-<version>.zip.sha256 holds that hash. dist/nuget/ holds StokerHQ.Plugins.Registry and the
-StokerHQ.Registry tool.
+dist/stoker-plugin-sdk-<version>.zip.sha256 holds that hash. dist/nuget/ holds StokerHQ.PluginRegistry and the
+StokerHQ.PluginRegistry.Tool tool.
 
 The version is native/sdk.json's.
 #>

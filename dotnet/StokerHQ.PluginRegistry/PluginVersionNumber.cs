@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace Stoker.Plugins.Registry;
+namespace StokerHQ.PluginRegistry;
 
 /// <summary>
 /// A plugin version as a registry orders them: semver (<c>major.minor.patch[-prerelease]</c>) with semver's

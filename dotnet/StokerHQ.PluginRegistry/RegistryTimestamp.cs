@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.Json.Nodes;
 
-namespace Stoker.Plugins.Registry;
+namespace StokerHQ.PluginRegistry;
 
 /// <summary>A <c>timestamp.json</c> a host has checked and takes as current.</summary>
 /// <param name="Pinned">Every other file of the index by its path under the index's root, with the SHA-256 and size it must have.</param>

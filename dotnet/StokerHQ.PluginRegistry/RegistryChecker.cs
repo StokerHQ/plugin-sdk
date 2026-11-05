@@ -1,4 +1,4 @@
-namespace Stoker.Plugins.Registry;
+namespace StokerHQ.PluginRegistry;
 
 /// <summary>
 /// Checks a registry the way a Stoker host does before it offers anything from it (plugin-registry.md §5): every

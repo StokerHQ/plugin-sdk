@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 
-namespace Stoker.Plugins.Registry;
+namespace StokerHQ.PluginRegistry;
 
 /// <summary>The two hashes a registry names every file by, lower-case hex.</summary>
 public static class FileHashes

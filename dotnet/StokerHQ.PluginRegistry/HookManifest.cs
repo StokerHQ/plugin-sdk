@@ -3,7 +3,7 @@ using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Text.Json.Nodes;
 
-namespace Stoker.Plugins.Registry;
+namespace StokerHQ.PluginRegistry;
 
 /// <summary>
 /// What a hook plugin's file says about itself: the operating system and architecture it was built for, and the

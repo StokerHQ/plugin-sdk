@@ -2,11 +2,11 @@ using System.Globalization;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using Stoker.Plugins.Registry;
+using StokerHQ.PluginRegistry;
 using YamlDotNet.Core;
 using YamlDotNet.RepresentationModel;
 
-namespace Stoker.Registry;
+namespace StokerHQ.PluginRegistry.Tool;
 
 /// <summary>
 /// Reads a registry's YAML as JSON means it, the way the schemas repository's <c>validate.py</c> does: a plain scalar is

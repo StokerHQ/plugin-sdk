@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Stoker.Plugins.Registry\Stoker.Plugins.Registry.csproj" />
+    <ProjectReference Include="..\..\StokerHQ.PluginRegistry\StokerHQ.PluginRegistry.csproj" />
     <!-- The YAML reader and the commands live in the tool. -->
-    <ProjectReference Include="..\..\Stoker.Registry.Tool\Stoker.Registry.Tool.csproj" />
+    <ProjectReference Include="..\..\StokerHQ.PluginRegistry.Tool\StokerHQ.PluginRegistry.Tool.csproj" />
   </ItemGroup>
 
   <ItemGroup>

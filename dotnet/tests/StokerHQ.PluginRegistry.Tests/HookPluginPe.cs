@@ -1,7 +1,7 @@
 using System.Buffers.Binary;
 using System.Text;
 
-namespace Stoker.Registry.Tests;
+namespace StokerHQ.PluginRegistry.Tests;
 
 /// <summary>A small native PE with a <c>.stkmeta</c> manifest section, as a hook plugin is laid out; never executed.</summary>
 public static class HookPluginPe

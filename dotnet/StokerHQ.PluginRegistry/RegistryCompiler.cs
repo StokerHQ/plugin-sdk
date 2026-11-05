@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using ZstdSharp;
 
-namespace Stoker.Plugins.Registry;
+namespace StokerHQ.PluginRegistry;
 
 /// <summary>A compiled index's files, by their path under the index's root (<c>index/v1/…</c>).</summary>
 /// <param name="Serial">The serial every file of this index carries.</param>

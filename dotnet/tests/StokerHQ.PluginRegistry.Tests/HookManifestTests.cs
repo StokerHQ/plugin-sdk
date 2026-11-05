@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
-using Stoker.Plugins.Registry;
+using StokerHQ.PluginRegistry;
 using Xunit;
 
-namespace Stoker.Registry.Tests;
+namespace StokerHQ.PluginRegistry.Tests;
 
 /// <summary>A hook plugin's manifest read from its file, and compared with the version entry that lists it.</summary>
 public sealed class HookManifestTests
