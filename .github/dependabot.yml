@@ -1,0 +1,14 @@
+# Keeps the workflows' pinned action commits and the .NET packages current, as pull requests to review.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ['*']
+  - package-ecosystem: nuget
+    directory: /dotnet
+    schedule:
+      interval: weekly

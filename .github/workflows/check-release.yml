@@ -21,20 +21,20 @@ on:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: StokerHQ/schemas
           path: .stokerhq-schemas
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.13"
       - run: pip install "jsonschema[format-nongpl]" pyyaml
       - name: The format
         run: python -I .stokerhq-schemas/validate.py --plugins "${{ inputs.root }}" .stokerhq-schemas/metadata/examples
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: 10.0.x
       - run: dotnet tool install -g StokerHQ.Registry --version "${{ inputs.tool-version }}"

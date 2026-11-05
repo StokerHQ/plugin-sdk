@@ -24,12 +24,12 @@ on:
 
 jobs:
   targets:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       windows: ${{ steps.read.outputs.windows }}
       linux: ${{ steps.read.outputs.linux }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: read
         name: Read the targets
         shell: python
@@ -47,8 +47,8 @@ jobs:
     if: needs.targets.outputs.windows != '[]'
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: 10.0.x
       - run: dotnet tool install -g StokerHQ.Registry --version "${{ inputs.tool-version }}"
@@ -65,7 +65,7 @@ jobs:
             New-Item -ItemType Directory -Force out | Out-Null
             Copy-Item $built "out/$($t.name)-windows-$($t.architecture).dll"
           }
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: plugin-windows
           path: out/*
@@ -73,10 +73,10 @@ jobs:
   linux:
     needs: targets
     if: needs.targets.outputs.linux != '[]'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: 10.0.x
       - run: dotnet tool install -g StokerHQ.Registry --version "${{ inputs.tool-version }}"
@@ -91,7 +91,7 @@ jobs:
             [ "$architecture" = x64 ] || { echo "only x64 Linux targets build on this runner: $name $architecture" >&2; exit 1; }
             g++ -std=c++20 -shared -fPIC -fvisibility=hidden -O2 -I"$sdk/include" -DSTOKER_HOOK_PLUGIN_BUILD "$source" -o "out/$name-linux-$architecture.so"
           done
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: plugin-linux
           path: out/*
