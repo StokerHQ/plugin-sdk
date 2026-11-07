@@ -67,9 +67,26 @@ public static partial class RegistryYaml
     }
 
     /// <summary>
+    /// <paramref name="document"/>, when it is what <paramref name="schema"/> says; otherwise throws a
+    /// <see cref="SchemaException"/> naming everything that is not.
+    /// </summary>
+    public static JsonObject Valid(JsonObject document, RegistrySchema schema)
+    {
+        var problems = RegistrySchemas.Problems(document, schema);
+        return problems.Count == 0 ? document : throw new SchemaException(problems);
+    }
+
+    private static void Report(List<string> problems, string relative, Exception ex)
+    {
+        if (ex is SchemaException schema) problems.AddRange(schema.Problems.Select(p => $"{relative}: {p}"));
+        else problems.Add($"{relative}: {ex.Message}");
+    }
+
+    /// <summary>
     /// Reads a registry root: <c>registry.yaml</c> and, under <c>plugins/</c>, every <c>&lt;key&gt;/plugin.yaml</c> and
-    /// <c>&lt;key&gt;/&lt;version&gt;.yaml</c>. A file that cannot be read goes to <paramref name="problems"/> and is left
-    /// out; what can be read is returned.
+    /// <c>&lt;key&gt;/&lt;version&gt;.yaml</c>. Each document is checked against its schema before it is read. A file
+    /// that cannot be read, or breaks its schema, goes to <paramref name="problems"/> and is left out; what can be read
+    /// is returned.
     /// </summary>
     public static RegistryTree? ReadTree(string root, List<string> problems)
     {
@@ -81,10 +98,10 @@ public static partial class RegistryYaml
         }
 
         RegistryDocument registry;
-        try { registry = RegistryDocument.From(Parse(File.ReadAllText(registryFile, Encoding.UTF8))); }
+        try { registry = RegistryDocument.From(Valid(Parse(File.ReadAllText(registryFile, Encoding.UTF8)), RegistrySchema.Registry)); }
         catch (FormatException ex)
         {
-            problems.Add($"registry.yaml: {ex.Message}");
+            Report(problems, "registry.yaml", ex);
             return null;
         }
 
@@ -96,10 +113,10 @@ public static partial class RegistryYaml
             {
                 var name = Path.GetFileName(directory);
                 PluginDocument plugin;
-                try { plugin = PluginDocument.From(Parse(File.ReadAllText(Path.Combine(directory, "plugin.yaml"), Encoding.UTF8))); }
+                try { plugin = PluginDocument.From(Valid(Parse(File.ReadAllText(Path.Combine(directory, "plugin.yaml"), Encoding.UTF8)), RegistrySchema.Plugin)); }
                 catch (Exception ex) when (ex is FormatException or IOException)
                 {
-                    problems.Add($"plugins/{name}/plugin.yaml: {ex.Message}");
+                    Report(problems, $"plugins/{name}/plugin.yaml", ex);
                     continue;
                 }
 
@@ -109,13 +126,13 @@ public static partial class RegistryYaml
                     var relative = $"plugins/{name}/{Path.GetFileName(file)}";
                     try
                     {
-                        var version = PluginVersionDocument.From(Parse(File.ReadAllText(file, Encoding.UTF8)));
+                        var version = PluginVersionDocument.From(Valid(Parse(File.ReadAllText(file, Encoding.UTF8)), RegistrySchema.Version));
                         if (Path.GetFileNameWithoutExtension(file) != version.Version) problems.Add($"{relative}: version {version.Version} is not the file's name");
                         versions.Add(version);
                     }
                     catch (Exception ex) when (ex is FormatException or IOException)
                     {
-                        problems.Add($"{relative}: {ex.Message}");
+                        Report(problems, relative, ex);
                     }
                 }
 
@@ -125,4 +142,12 @@ public static partial class RegistryYaml
 
         return new RegistryTree(registry, plugins);
     }
+}
+
+/// <summary>A document that breaks its schema: every way it does, one line each.</summary>
+public sealed class SchemaException(IReadOnlyList<string> problems)
+    : FormatException(string.Join(Environment.NewLine, problems))
+{
+    /// <summary>Each problem as <c>&lt;location&gt;: &lt;message&gt;</c>.</summary>
+    public IReadOnlyList<string> Problems { get; } = problems;
 }

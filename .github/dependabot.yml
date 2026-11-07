@@ -12,3 +12,7 @@ updates:
     directory: /dotnet
     schedule:
       interval: weekly
+    ignore:
+      # From 9.0, JsonSchema.Net's binaries come under the Open Source Maintenance Fee EULA, not the MIT licence alone.
+      - dependency-name: JsonSchema.Net
+        versions: ['>= 9']

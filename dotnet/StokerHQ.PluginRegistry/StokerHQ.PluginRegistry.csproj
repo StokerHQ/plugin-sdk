@@ -17,6 +17,14 @@
   <ItemGroup>
     <PackageReference Include="Blake3" />
     <PackageReference Include="ZstdSharp.Port" />
+    <PackageReference Include="JsonSchema.Net" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Copies of StokerHQ/schemas' plugins/v1 version, plugin and registry schemas and the metadata/v1 common schema
+         they refer to, at the paths they have there so their relative $refs hold. RegistrySchemas validates every
+         document against them. Refresh them whenever those files change in StokerHQ/schemas. -->
+    <EmbeddedResource Include="Schemas\**\*.schema.json" LogicalName="StokerHQ.PluginRegistry.Schemas/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
 </Project>
