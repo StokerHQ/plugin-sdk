@@ -35,7 +35,7 @@ schemaVersion: "1.0"
 key: org.example.widescreen-fix
 kind: hook
 sdk:
-  version: "1.0.1"
+  version: "1.0.2"
   sha256: "<the SHA-256 the SDK release names>"
 targets:
   - { os: windows, architecture: x64, source: hook-plugin/widescreen_fix.cpp, name: widescreen_fix }

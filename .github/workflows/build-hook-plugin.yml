@@ -3,7 +3,7 @@
 #
 #   jobs:
 #     build:
-#       uses: StokerHQ/plugin-sdk/.github/workflows/build-hook-plugin.yml@v1.0.1
+#       uses: StokerHQ/plugin-sdk/.github/workflows/build-hook-plugin.yml@v1.0.2
 #
 # The SDK is the pinned release zip, checked by its SHA-256 (stoker-registry sdk); nothing of it lives in the plugin's
 # repository. Built files are an artifact named `plugin`, one file per target: <name>-<os>-<architecture>.<dll|so>,

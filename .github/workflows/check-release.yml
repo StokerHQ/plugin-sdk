@@ -4,7 +4,7 @@
 #
 #   jobs:
 #     check:
-#       uses: StokerHQ/plugin-sdk/.github/workflows/check-release.yml@v1.0.1
+#       uses: StokerHQ/plugin-sdk/.github/workflows/check-release.yml@v1.0.2
 name: Check a registry
 
 on:
