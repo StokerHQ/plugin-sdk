@@ -80,8 +80,10 @@ public static class RegistrySchemas
                     : $"matches none of the alternatives at {string.Join('/', segments[..^1])}";
                 continue;
             }
-            if (segments[^1] == "not" && child.IsValid)
+            if (segments[^1] == "not")
             {
+                // A `not` whose subschema failed passed; one whose subschema matched is the problem.
+                if (!child.IsValid) continue;
                 var forbidden = Subschema(source, path);
                 Add($"{location}: must not match {(forbidden is null ? $"the schema at {path}" : forbidden.ToJsonString())}");
                 continue;

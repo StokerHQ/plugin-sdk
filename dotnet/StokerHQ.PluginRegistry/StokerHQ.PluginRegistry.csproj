@@ -22,8 +22,8 @@
 
   <ItemGroup>
     <!-- Copies of StokerHQ/schemas' plugins/v1 version, plugin and registry schemas and the metadata/v1 common schema
-         they refer to, at the paths they have there so their relative $refs hold. RegistrySchemas validates every
-         document against them. Refresh them whenever those files change in StokerHQ/schemas. -->
+         they refer to, as of StokerHQ/schemas commit 240cee0, at the paths they have there so their relative $refs hold.
+         RegistrySchemas validates every document against them. Refresh them whenever those files change there. -->
     <EmbeddedResource Include="Schemas\**\*.schema.json" LogicalName="StokerHQ.PluginRegistry.Schemas/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
