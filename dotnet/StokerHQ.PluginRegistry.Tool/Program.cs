@@ -32,7 +32,7 @@ namespace StokerHQ.PluginRegistry.Tool
                 return args[0] switch
                 {
                     "keygen" => KeyGen(new Options(args[1..])),
-                    "version" => Version(new Options(args[1..])),
+                    "version" => await VersionAsync(new Options(args[1..])),
                     "check" => await CheckAsync(new Options(args[1..])),
                     "compile" => Compile(new Options(args[1..])),
                     "sign" => Sign(new Options(args[1..])),
@@ -66,15 +66,22 @@ namespace StokerHQ.PluginRegistry.Tool
               version --key <key.pem> --publisher <id> --plugin <key> --version <v> --kind <kind>
                       --repository <url> --tag <tag> --commit <sha>
                       --file <os> <architecture> <path> <url> [--file ...] [--out <folder>]
+                      [--notes <file> | --no-notes] [--released <date>]
                   Writes <folder>/<version>.yaml: the release, the source, every file with its size, SHA-256,
                   BLAKE3 and URL, and the publisher's signature. For a hook plugin, abi, hosts, manifestSha256
                   and config come from the files' own manifest, which must be the same in every file. Other
                   kinds' fields (loader, integration, server) are added by hand; the files' hashes, which the
                   signature covers, are what an instance checks them against.
+                  notes (Markdown) and released (YYYY-MM-DD) come from the GitHub release --repository and --tag
+                  name: its body and its publication date, through GitHub's API (GITHUB_TOKEN, when set, is
+                  sent). --notes takes the notes from a file instead, --no-notes writes none, and --released
+                  sets the date (2026, 2026-11 or 2026-11-06). The signature covers neither. When the release
+                  cannot be read, the entry is written without them, and stderr says so.
 
               check <registry root> [--download]
-                  Every version signed by a publisher registry.yaml lists, inside that publisher's namespaces,
-                  allowed by the policy, with a tag of the right shape. --download fetches every file from its
+                  Every document valid against its schema (StokerHQ/schemas plugins/v1), and every version
+                  signed by a publisher registry.yaml lists, inside that publisher's namespaces, allowed by the
+                  policy, with a tag of the right shape. --download fetches every file from its
                   URL (then the mirrors) and compares size, SHA-256 and BLAKE3, and for a hook plugin the
                   manifest in the file with the entry's abi, hosts, manifestSha256 and config.
 
@@ -115,13 +122,42 @@ namespace StokerHQ.PluginRegistry.Tool
             return 0;
         }
 
-        private static int Version(Options options)
+        private static async Task<int> VersionAsync(Options options)
         {
             var kind = options.Required("--kind");
             var plugin = options.Required("--plugin");
             var version = options.Required("--version");
             var tag = options.Required("--tag");
+            var repository = options.Required("--repository");
             if (!RegistryChecker.IsTag(tag, plugin, version)) throw new ArgumentException($"--tag is v{version} or {plugin}/{version}.");
+            if (options.Flag("--no-notes") && options.Value("--notes") is not null) throw new ArgumentException("--notes and --no-notes exclude each other.");
+
+            var released = options.Value("--released");
+            if (released is not null && !ReleaseNotes.IsPartialDate(released)) throw new ArgumentException($"--released {released} is not a date: 2026, 2026-11 or 2026-11-06.");
+            string? notes = null;
+            if (options.Value("--notes") is { } notesFile) notes = await File.ReadAllTextAsync(notesFile, Encoding.UTF8);
+
+            // The GitHub release is asked only for what the options leave open.
+            var wantNotes = notes is null && !options.Flag("--no-notes");
+            if (wantNotes || released is null)
+            {
+                var release = await ReleaseNotes.FetchAsync(repository, tag, Console.Error);
+                if (release is not null)
+                {
+                    if (wantNotes)
+                    {
+                        notes = release.Body;
+                        if (string.IsNullOrWhiteSpace(notes)) Console.Error.WriteLine($"stoker-registry: the release {tag} has no body; the entry has no notes.");
+                    }
+                    if (released is null)
+                    {
+                        released = release.Published;
+                        if (released is null) Console.Error.WriteLine($"stoker-registry: the release {tag} is not published; the entry has no released date.");
+                    }
+                }
+            }
+            notes = notes is null ? null : ReleaseNotes.Normalize(notes);
+            if (notes is { Length: 0 }) notes = null;
 
             var files = new List<PluginVersionFile>();
             foreach (var spec in options.Groups("--file", 4))
@@ -162,11 +198,13 @@ namespace StokerHQ.PluginRegistry.Tool
                 .Append("key: ").Append(Quote(plugin)).Append('\n')
                 .Append("version: ").Append(Quote(version)).Append('\n')
                 .Append("kind: ").Append(Quote(kind)).Append('\n')
-                .Append("release: { repository: ").Append(Quote(options.Required("--repository"))).Append(", tag: ").Append(Quote(tag)).Append(" }\n")
-                .Append("source: { repository: ").Append(Quote(options.Value("--source-repository") ?? options.Required("--repository")))
+                .Append("release: { repository: ").Append(Quote(repository)).Append(", tag: ").Append(Quote(tag)).Append(" }\n")
+                .Append("source: { repository: ").Append(Quote(options.Value("--source-repository") ?? repository))
                 .Append(", commit: ").Append(Quote(options.Required("--commit"))).Append(" }\n")
                 .Append("signature: { publisher: ").Append(Quote(options.Required("--publisher"))).Append(", algorithm: ")
                 .Append(RegistrySignature.Algorithm).Append(", value: ").Append(Quote(signature)).Append(" }\n");
+            if (released is not null) yaml.Append("released: ").Append(Quote(released)).Append('\n');
+            if (notes is not null) yaml.Append(ReleaseNotes.BlockScalar("notes", notes));
             if (hook is not null)
             {
                 yaml.Append("abi: ").Append(hook.Abi.ToString(CultureInfo.InvariantCulture)).Append('\n');
@@ -187,12 +225,21 @@ namespace StokerHQ.PluginRegistry.Tool
                     .Append("    url: ").Append(Quote(file.Url)).Append('\n');
             }
 
+            // What is written is read back as check reads it, so a version entry that check would refuse is never written -
+            // except that a mod, an integration or a server extension is complete only once its own field is added by hand.
+            var handField = kind switch { "mod" => "loader", "integration" => "integration", "server" => "server", _ => null };
+            var written = RegistryYaml.Parse(yaml.ToString());
+            if (handField is null) RegistryYaml.Valid(written, RegistrySchema.Version);
+            if (notes is not null && written["notes"]?.GetValue<string>() != notes + "\n")
+                throw new InvalidOperationException("The notes do not read back as they were written; nothing was written.");
+
             var folder = options.Value("--out") ?? ".";
             Directory.CreateDirectory(folder);
             var output = Path.Combine(folder, $"{version}.yaml");
             if (File.Exists(output)) throw new IOException($"{output} already exists. A published version never changes; make a new one.");
             File.WriteAllText(output, yaml.ToString(), new UTF8Encoding(false));
             Console.WriteLine($"Wrote {output}, signed by {options.Required("--publisher")} (key {RegistryKey.Of(key).KeyId}).");
+            if (handField is not null) Console.WriteLine($"Add `{handField}` to it by hand; check refuses a {kind} without one.");
             return 0;
         }
 
@@ -308,7 +355,7 @@ namespace StokerHQ.PluginRegistry.Tool
             var folder = options.Positional(0, "<folder>");
             var keyText = options.Required("--key");
             var key = File.Exists(keyText) && Path.GetFileName(keyText) == "registry.yaml"
-                ? RegistryDocument.From(RegistryYaml.Parse(File.ReadAllText(keyText))).Key
+                ? RegistryDocument.From(RegistryYaml.Valid(RegistryYaml.Parse(File.ReadAllText(keyText)), RegistrySchema.Registry)).Key
                 : RegistryKey.Parse(File.Exists(keyText) ? File.ReadAllText(keyText) : keyText);
             var held = long.Parse(options.Value("--held-serial") ?? "0", CultureInfo.InvariantCulture);
 
@@ -452,7 +499,7 @@ namespace StokerHQ.PluginRegistry.Tool
             {
                 if (args[i].StartsWith("--", StringComparison.Ordinal))
                 {
-                    i += args[i] is "--download" ? 0 : args[i] == "--file" ? 4 : 1;
+                    i += args[i] is "--download" or "--no-notes" ? 0 : args[i] == "--file" ? 4 : 1;
                     continue;
                 }
                 positionals.Add(args[i]);

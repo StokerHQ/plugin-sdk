@@ -19,6 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="StokerHQ.PluginRegistry.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\StokerHQ.PluginRegistry\StokerHQ.PluginRegistry.csproj" />
   </ItemGroup>
 

@@ -61,8 +61,8 @@ stoker-registry --help
 | Command | Does |
 |---|---|
 | `keygen --out <key.pem>` | A new ECDSA P-256 key (encrypted PKCS#8 PEM); prints the public key as `registry.yaml` takes it. |
-| `version …` | Writes a signed `<version>.yaml` for a release: files by size, SHA-256, BLAKE3 and asset URL; for a hook plugin, `abi`, `hosts`, `manifestSha256` and `config` read from the files' own manifest. |
-| `check <registry> [--download]` | What an instance checks; `--download` also fetches every asset and compares it, the hook manifest included. |
+| `version … [--notes <file> \| --no-notes] [--released <date>]` | Writes a signed `<version>.yaml` for a release: files by size, SHA-256, BLAKE3 and asset URL; for a hook plugin, `abi`, `hosts`, `manifestSha256` and `config` read from the files' own manifest. `notes` and `released` (which the signature does not cover) come from the GitHub release: its body and its publication date, through GitHub's API (`GITHUB_TOKEN` is sent when set). `--notes` takes the notes from a Markdown file instead, `--no-notes` writes none, `--released` sets the date. When the release cannot be read, the entry is written without them. |
+| `check <registry> [--download]` | Every document against its schema (`plugins/v1`, carried in the library), then what an instance checks; `--download` also fetches every asset and compares it, the hook manifest included. `compile` refuses what `check` refuses. |
 | `compile`, `sign`, `verify-index` | The compiled index, its signed timestamp, and checking both as an instance does. |
 | `sdk [--project stoker-plugin.yaml]` | Puts the pinned SDK into the cache and prints its folder. |
 
@@ -76,6 +76,7 @@ The registry format itself is in [StokerHQ/schemas](https://github.com/StokerHQ/
 3. `stoker-registry version --key publisher.pem --publisher <id> --plugin <key> --version <v> --kind <kind>
    --repository <repo URL> --tag <tag> --commit <sha> --file <os> <arch> <path> <asset URL> … --out
    plugins/<key>` in a checkout of the registry, then `stoker-registry check . --download`, and open a pull request.
+   The release's body becomes the entry's `notes`; write the changelog there, or pass `--notes <file>`.
 
 An administrator approves every version on their own instance before anything runs; a registry only makes a plugin
 findable and checkable.
