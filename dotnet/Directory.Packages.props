@@ -6,7 +6,7 @@
          Open Source Maintenance Fee EULA, which needs accepting by everyone who installs these packages. -->
     <PackageVersion Include="JsonSchema.Net" Version="8.0.5" />
     <PackageVersion Include="YamlDotNet" Version="18.1.0" />
-    <PackageVersion Include="xunit.v3" Version="4.0.1" />
+    <PackageVersion Include="xunit.v3" Version="4.0.2" />
     <PackageVersion Include="Microsoft.Testing.Platform.MSBuild" Version="2.5.2" />
   </ItemGroup>
 </Project>
