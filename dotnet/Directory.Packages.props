@@ -1,7 +1,7 @@
 <Project>
   <ItemGroup>
     <PackageVersion Include="Blake3" Version="3.0.2" />
-    <PackageVersion Include="ZstdSharp.Port" Version="0.8.8" />
+    <PackageVersion Include="ZstdSharp.Port" Version="0.9.1" />
     <!-- 8.0.5 is the last release under the MIT licence alone; from 9.0 the binaries come under json-everything's
          Open Source Maintenance Fee EULA, which needs accepting by everyone who installs these packages. -->
     <PackageVersion Include="JsonSchema.Net" Version="8.0.5" />
